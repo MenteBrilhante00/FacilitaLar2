@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FacilitaLar</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1c1c1e;max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px}
+
+.app-header{background:linear-gradient(135deg,#667eea,#764ba2);padding:50px 20px 20px;color:white;text-align:center}
+.app-header h1{font-size:1.6em;font-weight:700}
+.app-header p{font-size:.85em;opacity:.85;margin-top:4px}
+
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #e5e5ea;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 2px 8px;cursor:pointer;color:#8e8e93;font-size:.6em;font-weight:500;transition:color .2s}
+.nav-item .icon{font-size:1.45em;margin-bottom:2px}
+.nav-item.active{color:#667eea}
+.nav-item.terc-nav.active{color:#f7971e}
+
+.page{display:none;padding:16px;animation:fadeIn .25s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.card-title{font-size:1em;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:.82em;color:#8e8e93}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75em;font-weight:600}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-orange{background:#ffedd5;color:#c2410c}
+
+.services-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.svc-card{background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;border:2px solid transparent;transition:all .2s}
+.svc-card.selected{border-color:#667eea;background:#f0f0ff}
+.svc-card .svc-icon{font-size:1.8em;margin-bottom:6px}
+.svc-card .svc-name{font-size:.85em;font-weight:700}
+.svc-card .svc-price{font-size:.8em;color:#667eea;font-weight:600;margin-top:3px}
+
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.82em;font-weight:600;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:.95em;background:white;color:#1c1c1e;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#667eea}
+.form-group textarea{resize:none}
+
+.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:14px;font-size:1em;font-weight:700;cursor:pointer;margin-top:4px}
+.btn-primary:disabled{opacity:.4}
+.btn-secondary{width:100%;padding:13px;background:#f2f2f7;color:#667eea;border:none;border-radius:14px;font-size:.95em;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-orange{width:100%;padding:15px;background:linear-gradient(135deg,#f7971e,#ffd200);color:#333;border:none;border-radius:14px;font-size:1em;font-weight:700;cursor:pointer;margin-top:4px}
+.btn-danger{background:#ff3b30;color:white;border:none;border-radius:10px;padding:7px 14px;font-size:.82em;font-weight:600;cursor:pointer}
+.btn-edit{background:#667eea;color:white;border:none;border-radius:10px;padding:7px 14px;font-size:.82em;font-weight:600;cursor:pointer}
+
+.section-title{font-size:1.05em;font-weight:700;color:#1c1c1e;margin-bottom:12px;margin-top:4px}
+
+.summary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f2f2f7;font-size:.9em}
+.summary-row:last-child{border:none;font-weight:700;color:#667eea;font-size:1em}
+
+.steps{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+.step{width:28px;height:6px;border-radius:3px;background:#e5e5ea;transition:background .3s}
+.step.active{background:linear-gradient(135deg,#667eea,#764ba2)}
+
+.admin-tabs{display:flex;background:#f2f2f7;border-radius:12px;padding:4px;margin-bottom:16px;gap:3px}
+.admin-tab{flex:1;padding:9px 4px;text-align:center;border:none;background:transparent;border-radius:9px;font-size:.75em;font-weight:600;color:#8e8e93;cursor:pointer;transition:all .2s}
+.admin-tab.active{background:white;color:#667eea;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+.admin-list-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f2f2f7}
+.admin-list-item:last-child{border:none}
+.ali-info .ali-name{font-size:.92em;font-weight:600}
+.ali-info .ali-sub{font-size:.78em;color:#8e8e93;margin-top:2px}
+.ali-actions{display:flex;gap:6px}
+
+/* TERCEIRIZADA */
+.terc-header{background:linear-gradient(135deg,#f7971e,#ffd200);border-radius:16px;padding:18px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
+.terc-header .th-icon{font-size:2.2em}
+.terc-header h3{font-size:.98em;font-weight:700;color:#333}
+.terc-header p{font-size:.8em;color:#5a3e00;margin-top:3px}
+
+.mode-row{display:flex;gap:8px;margin-bottom:16px}
+.mode-btn{flex:1;padding:11px 6px;border:2px solid #e5e5ea;border-radius:12px;background:white;cursor:pointer;font-size:.82em;font-weight:600;color:#8e8e93;transition:all .2s;text-align:center}
+.mode-btn.active{border-color:#f7971e;background:#fff8f0;color:#c47a00}
+
+.terc-form{display:none}
+.terc-form.active{display:block}
+
+.bid-card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);border:2px solid transparent;transition:border-color .2s}
+.bid-card:active{border-color:#f7971e}
+.bid-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.bid-title{font-size:.95em;font-weight:700;flex:1}
+.bid-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:.78em;color:#8e8e93;margin-bottom:8px}
+.bid-desc{font-size:.85em;color:#555;margin-bottom:10px;line-height:1.5}
+.bid-footer{display:flex;justify-content:space-between;align-items:center}
+.bid-price{font-size:.95em;font-weight:700;color:#f7971e}
+.btn-candidatar{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;padding:8px 16px;font-size:.82em;font-weight:700;cursor:pointer}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{background:#f2f2f7;color:#555;border-radius:20px;padding:3px 10px;font-size:.75em}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:white;border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:#e5e5ea;border-radius:2px;margin:0 auto 20px}
+.modal-title{font-size:1.1em;font-weight:700;margin-bottom:16px;text-align:center}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:white;padding:12px 22px;border-radius:20px;font-size:.88em;font-weight:500;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:white;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.stat-card .stat-num{font-size:1.8em;font-weight:800;color:#667eea}
+.stat-card .stat-label{font-size:.75em;color:#8e8e93;margin-top:2px}
+
+.empty{text-align:center;padding:40px 20px;color:#8e8e93}
+.empty .ei{font-size:3em;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>🏠 FacilitaLar</h1>
+  <p>Serviços residenciais de qualidade</p>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item active" onclick="goPage('home',this)"><div class="icon">🏠</div>Início</div>
+  <div class="nav-item" onclick="goPage('agendar',this)"><div class="icon">📅</div>Agendar</div>
+  <div class="nav-item" onclick="goPage('pedidos',this)"><div class="icon">📋</div>Pedidos</div>
+  <div class="nav-item terc-nav" onclick="goPage('terc',this)"><div class="icon">🤝</div>Parcerias</div>
+  <div class="nav-item" onclick="goPage('admin',this)"><div class="icon">⚙️</div>Admin</div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <!-- CARD CONTA (logado / deslogado) -->
+  <div id="homeUserCard"></div>
+  <div class="stats-row" id="homeStats"></div>
+  <div class="section-title">Serviços Disponíveis</div>
+  <div id="homeServices"></div>
+</div>
+
+<!-- AGENDAR -->
+<div id="page-agendar" class="page">
+  <div id="step1">
+    <div class="steps"><div class="step active"></div><div class="step"></div><div class="step"></div></div>
+    <div class="section-title">Escolha o Serviço</div>
+    <div class="services-grid" id="svcGrid"></div>
+    <button class="btn-primary" id="btnStep2" disabled onclick="showStep(2)">Continuar</button>
+  </div>
+  <div id="step2" style="display:none">
+    <div class="steps"><div class="step active"></div><div class="step active"></div><div class="step"></div></div>
+    <div class="section-title">Seus Dados</div>
+    <div class="form-group"><label>Nome completo</label><input id="fNome" placeholder="João da Silva" oninput="checkStep2()"></div>
+    <div class="form-group"><label>WhatsApp</label><input id="fTel" type="tel" placeholder="(28) 99999-9999" oninput="checkStep2()"></div>
+    <div class="form-group"><label>Endereço</label><input id="fEnd" placeholder="Rua, número, bairro" oninput="checkStep2()"></div>
+    <div class="form-group"><label>Data</label><input id="fData" type="date" oninput="checkStep2()"></div>
+    <div class="form-group"><label>Horário</label>
+      <select id="fHora" onchange="checkStep2()">
+        <option value="">Selecione</option>
+        <option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option>
+        <option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Observações</label><textarea id="fObs" rows="2" placeholder="Detalhes adicionais..."></textarea></div>
+    <button class="btn-primary" id="btnStep3" disabled onclick="showStep(3)">Revisar Pedido</button>
+    <button class="btn-secondary" onclick="showStep(1)">Voltar</button>
+  </div>
+  <div id="step3" style="display:none">
+    <div class="steps"><div class="step active"></div><div class="step active"></div><div class="step active"></div></div>
+    <div class="section-title">Resumo do Pedido</div>
+    <div class="card" id="resumo"></div>
+    <button class="btn-primary" onclick="confirmarPedido()">✅ Confirmar Agendamento</button>
+    <button class="btn-secondary" onclick="showStep(2)">Voltar</button>
+  </div>
+</div>
+
+<!-- PEDIDOS -->
+<div id="page-pedidos" class="page">
+  <div class="section-title">Meus Agendamentos</div>
+  <div id="listaPedidos"></div>
+</div>
+
+<!-- TERCEIRIZADA -->
+<div id="page-terc" class="page">
+  <div class="terc-header">
+    <div class="th-icon">🤝</div>
+    <div>
+      <h3>Serviços Terceirizados</h3>
+      <p>Publique pedidos ou candidate-se como parceiro</p>
+    </div>
+  </div>
+  <div class="mode-row">
+    <button class="mode-btn active" onclick="switchTercMode('cliente',this)">📋 Sou Cliente</button>
+    <button class="mode-btn" onclick="switchTercMode('parceiro',this)">🔨 Sou Parceiro</button>
+  </div>
+
+  <!-- CLIENTE: publicar -->
+  <div id="tFormCliente" class="terc-form active">
+    <div class="section-title">Publicar Pedido</div>
+    <div class="form-group"><label>Título</label><input id="tTitulo" placeholder="Ex: Reforma completa do banheiro"></div>
+    <div class="form-group"><label>Categoria</label>
+      <select id="tCategoria">
+        <option value="">Selecione</option>
+        <option>Reforma Geral</option><option>Construção Civil</option>
+        <option>Elétrica Especializada</option><option>Hidráulica Especializada</option>
+        <option>Ar Condicionado / HVAC</option><option>Telhado / Impermeabilização</option>
+        <option>Paisagismo Avançado</option><option>Segurança / Câmeras</option><option>Outros</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Descrição detalhada</label><textarea id="tDesc" rows="3" placeholder="Dimensões, materiais, prazo..."></textarea></div>
+    <div class="form-group"><label>Orçamento estimado (R$)</label><input id="tOrcamento" type="number" placeholder="1500"></div>
+    <div class="form-group"><label>Prazo desejado</label><input id="tPrazo" type="date"></div>
+    <div class="form-group"><label>Seu Nome</label><input id="tNome" placeholder="Nome completo"></div>
+    <div class="form-group"><label>Contato (WhatsApp ou e-mail)</label><input id="tContato" placeholder="(28) 99999-0000"></div>
+    <div class="form-group"><label>Localização</label><input id="tLocal" placeholder="Cidade / Bairro"></div>
+    <button class="btn-orange" onclick="publicarPedidoTerc()">📢 Publicar Pedido</button>
+  </div>
+
+  <!-- PARCEIRO: ver pedidos -->
+  <div id="tFormParceiro" class="terc-form">
+    <div class="section-title">Pedidos Abertos</div>
+    <div id="listaTercPedidos"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <!-- TELA DE LOGIN -->
+  <div id="adminLogin">
+    <div style="text-align:center;padding:30px 0 20px">
+      <div style="font-size:3.5em;margin-bottom:10px">🔐</div>
+      <div style="font-weight:700;font-size:1.15em;margin-bottom:6px">Área Administrativa</div>
+      <div style="font-size:.85em;color:#8e8e93">Digite a senha para acessar o painel</div>
+    </div>
+    <div class="card">
+      <div class="form-group" style="margin-bottom:6px">
+        <label>Senha</label>
+        <div style="position:relative">
+          <input id="adminPwdInput" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAdminPwd()" style="padding-right:46px">
+          <button onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#8e8e93" id="eyeBtn">👁️</button>
+        </div>
+      </div>
+      <div id="adminPwdError" style="color:#ff3b30;font-size:.82em;margin-bottom:10px;display:none">❌ Senha incorreta. Tente novamente.</div>
+      <button class="btn-primary" onclick="checkAdminPwd()">Entrar</button>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="openModalChangePwd()" style="background:none;border:none;color:#8e8e93;font-size:.82em;cursor:pointer;text-decoration:underline">Esqueci / Alterar senha</button>
+    </div>
+  </div>
+
+  <!-- PAINEL ADMIN (oculto até login) -->
+  <div id="adminPanel" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <span style="font-weight:700;color:#667eea">⚙️ Admin</span>
+      <button onclick="logoutAdmin()" style="background:#f2f2f7;border:none;border-radius:10px;padding:7px 14px;font-size:.82em;font-weight:600;cursor:pointer;color:#ff3b30">Sair 🔒</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="adminTab('svc',this)">Serviços</button>
+      <button class="admin-tab" onclick="adminTab('cli',this)">Clientes</button>
+      <button class="admin-tab" onclick="adminTab('ped',this)">Pedidos</button>
+      <button class="admin-tab" onclick="adminTab('terc',this)">Parcerias</button>
+    </div>
+    <div id="admin-svc"></div>
+    <div id="admin-cli" style="display:none"></div>
+    <div id="admin-ped" style="display:none"></div>
+    <div id="admin-terc" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MODAL: login / cadastro -->
+<div class="modal-overlay" id="modalAuth">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <!-- abas login / cadastro -->
+    <div style="display:flex;background:#f2f2f7;border-radius:12px;padding:4px;margin-bottom:20px;gap:4px">
+      <button id="tabLoginBtn" class="admin-tab active" onclick="switchAuthTab('login')">Entrar</button>
+      <button id="tabCadBtn" class="admin-tab" onclick="switchAuthTab('cad')">Criar Conta</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="authLogin">
+      <div class="form-group"><label>E-mail</label><input id="lEmail" type="email" placeholder="seu@email.com"></div>
+      <div class="form-group"><label>Senha</label><input id="lSenha" type="password" placeholder="••••••••"></div>
+      <div id="lErro" style="color:#ff3b30;font-size:.82em;margin-top:-8px;margin-bottom:10px;display:none"></div>
+      <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
+    </div>
+    <!-- CADASTRO -->
+    <div id="authCad" style="display:none">
+      <div class="form-group"><label>Nome completo</label><input id="caNome" placeholder="João da Silva"></div>
+      <div class="form-group"><label>E-mail</label><input id="caEmail" type="email" placeholder="seu@email.com"></div>
+      <div class="form-group"><label>WhatsApp</label><input id="caTel" type="tel" placeholder="(28) 99999-9999"></div>
+      <div class="form-group"><label>Endereço padrão</label><input id="caEnd" placeholder="Rua, número, bairro"></div>
+      <div class="form-group"><label>Senha</label><input id="caSenha" type="password" placeholder="Mínimo 4 caracteres"></div>
+      <div class="form-group"><label>Confirmar Senha</label><input id="caSenha2" type="password" placeholder="Repita a senha"></div>
+      <div id="caErro" style="color:#ff3b30;font-size:.82em;margin-top:-8px;margin-bottom:10px;display:none"></div>
+      <button class="btn-primary" onclick="fazerCadastro()">Criar Conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: editar perfil -->
+<div class="modal-overlay" id="modalPerfil">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Editar Perfil</div>
+    <div class="form-group"><label>Nome completo</label><input id="pNome" placeholder="João da Silva"></div>
+    <div class="form-group"><label>WhatsApp</label><input id="pTel" type="tel" placeholder="(28) 99999-9999"></div>
+    <div class="form-group"><label>Endereço padrão</label><input id="pEnd" placeholder="Rua, número, bairro"></div>
+    <div class="form-group"><label>Nova senha <span style="font-weight:400;color:#aaa">(deixe em branco para manter)</span></label><input id="pSenha" type="password" placeholder="••••••••"></div>
+    <button class="btn-primary" onclick="salvarPerfil()">Salvar</button>
+    <button class="btn-secondary" onclick="closeModal('modalPerfil')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: novo/editar serviço -->
+<div class="modal-overlay" id="modalSvc">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalSvcTitle">Novo Serviço</div>
+    <div class="form-group"><label>Ícone (emoji)</label><input id="msIcon" placeholder="🌱" maxlength="4"></div>
+    <div class="form-group"><label>Nome</label><input id="msNome" placeholder="Jardinagem"></div>
+    <div class="form-group"><label>Descrição</label><input id="msDesc" placeholder="Poda, adubação..."></div>
+    <div class="form-group"><label>Preço (R$)</label><input id="msPreco" type="number" placeholder="250"></div>
+    <button class="btn-primary" onclick="salvarSvc()">Salvar Serviço</button>
+    <button class="btn-secondary" onclick="closeModal('modalSvc')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: status pedido -->
+<div class="modal-overlay" id="modalPedStatus">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Atualizar Status</div>
+    <div class="form-group"><label>Status</label>
+      <select id="mpStatus">
+        <option value="aguardando">⏳ Aguardando</option>
+        <option value="confirmado">✅ Confirmado</option>
+        <option value="concluido">🎉 Concluído</option>
+        <option value="cancelado">❌ Cancelado</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="salvarStatus()">Salvar</button>
+    <button class="btn-secondary" onclick="closeModal('modalPedStatus')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: candidatura parceiro -->
+<div class="modal-overlay" id="modalCand">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Candidatar-se</div>
+    <div id="candInfo" style="background:#f2f2f7;border-radius:10px;padding:10px;margin-bottom:14px;font-size:.85em;color:#555"></div>
+    <div class="form-group"><label>Seu Nome / Empresa</label><input id="cNome" placeholder="Nome ou razão social"></div>
+    <div class="form-group"><label>Contato</label><input id="cContato" placeholder="WhatsApp ou e-mail"></div>
+    <div class="form-group"><label>Sua proposta</label><textarea id="cProposta" rows="3" placeholder="Apresente-se e descreva como faria o serviço..."></textarea></div>
+    <div class="form-group"><label>Valor proposto (R$)</label><input id="cValor" type="number" placeholder="1200"></div>
+    <button class="btn-primary" onclick="enviarCandidatura()">Enviar Candidatura</button>
+    <button class="btn-secondary" onclick="closeModal('modalCand')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: alterar senha -->
+<div class="modal-overlay" id="modalChangePwd">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔑 Alterar Senha</div>
+    <div class="form-group"><label>Senha Atual</label><input id="cpAtual" type="password" placeholder="Senha atual"></div>
+    <div id="cpErroAtual" style="color:#ff3b30;font-size:.82em;margin-top:-10px;margin-bottom:10px;display:none">❌ Senha atual incorreta</div>
+    <div class="form-group"><label>Nova Senha</label><input id="cpNova" type="password" placeholder="Mínimo 4 caracteres"></div>
+    <div class="form-group"><label>Confirmar Nova Senha</label><input id="cpConfirm" type="password" placeholder="Repita a nova senha"></div>
+    <div id="cpErroConfirm" style="color:#ff3b30;font-size:.82em;margin-top:-10px;margin-bottom:10px;display:none">❌ As senhas não coincidem</div>
+    <button class="btn-primary" onclick="salvarNovaSenha()">Salvar Nova Senha</button>
+    <button class="btn-secondary" onclick="closeModal('modalChangePwd')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: status pedido terceirizado (admin) -->
+<div class="modal-overlay" id="modalTercStatus">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Status do Pedido Terceirizado</div>
+    <div class="form-group"><label>Status</label>
+      <select id="mtStatus">
+        <option value="aberto">🟢 Aberto</option>
+        <option value="em_andamento">🔄 Em andamento</option>
+        <option value="concluido">🎉 Concluído</option>
+        <option value="cancelado">❌ Cancelado</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="salvarStatusTerc()">Salvar</button>
+    <button class="btn-secondary" onclick="closeModal('modalTercStatus')">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DB = {servicos:[], clientes:[], pedidos:[], tercPedidos:[], usuarios:[]};
+let editSvcId=null, editPedId=null, editTercId=null, candTargetId=null;
+const DEFAULT_PWD = 'admin123';
+let adminUnlocked = false;
+let usuarioLogado = null; // { id, nome, email, tel, end }
+
+// ===== AUTH =====
+function getUsuarios(){ return DB.usuarios || []; }
+
+function switchAuthTab(tab){
+  document.getElementById('authLogin').style.display = tab==='login'?'block':'none';
+  document.getElementById('authCad').style.display   = tab==='cad'  ?'block':'none';
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
+  document.getElementById('tabCadBtn').classList.toggle('active',   tab==='cad');
+  document.getElementById('lErro').style.display='none';
+  document.getElementById('caErro').style.display='none';
+}
+
+function fazerLogin(){
+  const email = document.getElementById('lEmail').value.trim().toLowerCase();
+  const senha = document.getElementById('lSenha').value;
+  const err   = document.getElementById('lErro');
+  const u = getUsuarios().find(u=>u.email===email && u.senha===senha);
+  if(!u){ err.textContent='❌ E-mail ou senha incorretos.'; err.style.display='block'; return; }
+  err.style.display='none';
+  usuarioLogado = u;
+  closeModal('modalAuth');
+  document.getElementById('lEmail').value='';
+  document.getElementById('lSenha').value='';
+  renderHome();
+  showToast(`👋 Bem-vindo, ${u.nome.split(' ')[0]}!`);
+}
+
+function fazerCadastro(){
+  const nome   = document.getElementById('caNome').value.trim();
+  const email  = document.getElementById('caEmail').value.trim().toLowerCase();
+  const tel    = document.getElementById('caTel').value.trim();
+  const end    = document.getElementById('caEnd').value.trim();
+  const senha  = document.getElementById('caSenha').value;
+  const senha2 = document.getElementById('caSenha2').value;
+  const err    = document.getElementById('caErro');
+  err.style.display='none';
+  if(!nome||!email||!senha){ err.textContent='❌ Preencha nome, e-mail e senha.'; err.style.display='block'; return; }
+  if(senha.length<4){ err.textContent='❌ Senha deve ter ao menos 4 caracteres.'; err.style.display='block'; return; }
+  if(senha!==senha2){ err.textContent='❌ As senhas não coincidem.'; err.style.display='block'; return; }
+  if(getUsuarios().find(u=>u.email===email)){ err.textContent='❌ E-mail já cadastrado.'; err.style.display='block'; return; }
+  const novo = {id:'u'+Date.now(), nome, email, tel, end, senha};
+  DB.usuarios.push(novo);
+  saveDB();
+  usuarioLogado = novo;
+  closeModal('modalAuth');
+  ['caNome','caEmail','caTel','caEnd','caSenha','caSenha2'].forEach(i=>document.getElementById(i).value='');
+  renderHome();
+  showToast('🎉 Conta criada com sucesso!');
+}
+
+function abrirModalPerfil(){
+  document.getElementById('pNome').value = usuarioLogado.nome;
+  document.getElementById('pTel').value  = usuarioLogado.tel||'';
+  document.getElementById('pEnd').value  = usuarioLogado.end||'';
+  document.getElementById('pSenha').value= '';
+  document.getElementById('modalPerfil').classList.add('open');
+}
+
+function salvarPerfil(){
+  const nome  = document.getElementById('pNome').value.trim();
+  const tel   = document.getElementById('pTel').value.trim();
+  const end   = document.getElementById('pEnd').value.trim();
+  const senha = document.getElementById('pSenha').value;
+  if(!nome){ showToast('⚠️ Informe o nome'); return; }
+  const u = DB.usuarios.find(u=>u.id===usuarioLogado.id);
+  u.nome=nome; u.tel=tel; u.end=end;
+  if(senha.length>=4) u.senha=senha;
+  usuarioLogado = {...u};
+  saveDB(); closeModal('modalPerfil'); renderHome(); showToast('✅ Perfil atualizado!');
+}
+
+function fazerLogout(){
+  usuarioLogado=null; renderHome(); showToast('👋 Até logo!');
+}
+
+function renderHomeUserCard(){
+  const el = document.getElementById('homeUserCard');
+  if(!usuarioLogado){
+    el.innerHTML=`
+      <div class="card" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;margin-bottom:16px">
+        <div style="font-size:1.5em;margin-bottom:6px">👋</div>
+        <div style="font-weight:700;font-size:1em;margin-bottom:4px">Bem-vindo ao FacilitaLar!</div>
+        <div style="font-size:.83em;opacity:.9;margin-bottom:14px">Crie uma conta para salvar seus dados e agilizar seus agendamentos.</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="abrirAuth('cad')" style="flex:1;padding:10px;background:white;color:#667eea;border:none;border-radius:10px;font-weight:700;font-size:.9em;cursor:pointer">Criar Conta</button>
+          <button onclick="abrirAuth('login')" style="flex:1;padding:10px;background:rgba(255,255,255,.2);color:white;border:2px solid rgba(255,255,255,.5);border-radius:10px;font-weight:700;font-size:.9em;cursor:pointer">Entrar</button>
+        </div>
+      </div>`;
+  } else {
+    const inicial = usuarioLogado.nome.charAt(0).toUpperCase();
+    el.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:white;font-size:1.3em;font-weight:700;flex-shrink:0">${inicial}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:1em">${usuarioLogado.nome}</div>
+            <div style="font-size:.8em;color:#8e8e93">${usuarioLogado.email}</div>
+            ${usuarioLogado.tel?`<div style="font-size:.8em;color:#8e8e93">${usuarioLogado.tel}</div>`:''}
+          </div>
+        </div>
+        ${usuarioLogado.end?`<div style="margin-top:10px;padding:9px 12px;background:#f2f2f7;border-radius:10px;font-size:.83em;color:#555">📍 ${usuarioLogado.end}</div>`:''}
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button onclick="abrirModalPerfil()" style="flex:1;padding:9px;background:#f2f2f7;color:#667eea;border:none;border-radius:10px;font-weight:600;font-size:.85em;cursor:pointer">✏️ Editar Perfil</button>
+          <button onclick="fazerLogout()" style="flex:1;padding:9px;background:#fff0f0;color:#ff3b30;border:none;border-radius:10px;font-weight:600;font-size:.85em;cursor:pointer">Sair 🔒</button>
+        </div>
+      </div>`;
+  }
+}
+
+function abrirAuth(tab){
+  switchAuthTab(tab);
+  document.getElementById('modalAuth').classList.add('open');
+}
+
+// ADMIN AUTH
+async function getAdminPwd(){
+  try{ const r=await window.storage.get('facilitalar_pwd'); return r&&r.value?r.value:DEFAULT_PWD; }catch(e){return DEFAULT_PWD;}
+}
+async function setAdminPwd(pwd){
+  try{ await window.storage.set('facilitalar_pwd',pwd); }catch(e){}
+}
+async function checkAdminPwd(){
+  const input=document.getElementById('adminPwdInput').value;
+  const pwd=await getAdminPwd();
+  const err=document.getElementById('adminPwdError');
+  if(input===pwd){
+    err.style.display='none';
+    document.getElementById('adminPwdInput').value='';
+    adminUnlocked=true;
+    document.getElementById('adminLogin').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    renderAdmin('svc');
+  } else {
+    err.style.display='block';
+    document.getElementById('adminPwdInput').value='';
+    document.getElementById('adminPwdInput').focus();
+  }
+}
+function logoutAdmin(){
+  adminUnlocked=false;
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('adminLogin').style.display='block';
+}
+function togglePwd(){
+  const inp=document.getElementById('adminPwdInput');
+  const btn=document.getElementById('eyeBtn');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁️';}
+}
+function openModalChangePwd(){
+  ['cpAtual','cpNova','cpConfirm'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('cpErroAtual').style.display='none';
+  document.getElementById('cpErroConfirm').style.display='none';
+  document.getElementById('modalChangePwd').classList.add('open');
+}
+async function salvarNovaSenha(){
+  const atual=document.getElementById('cpAtual').value;
+  const nova=document.getElementById('cpNova').value.trim();
+  const confirm=document.getElementById('cpConfirm').value.trim();
+  const pwd=await getAdminPwd();
+  const eAtual=document.getElementById('cpErroAtual');
+  const eConf=document.getElementById('cpErroConfirm');
+  eAtual.style.display='none'; eConf.style.display='none';
+  if(atual!==pwd){eAtual.style.display='block';return;}
+  if(nova.length<4){showToast('⚠️ Senha deve ter ao menos 4 caracteres');return;}
+  if(nova!==confirm){eConf.style.display='block';return;}
+  await setAdminPwd(nova);
+  closeModal('modalChangePwd');
+  showToast('✅ Senha alterada com sucesso!');
+}
+
+const DEFAULT_SVCS=[
+  {id:'s1',icon:'🌱',nome:'Jardinagem',desc:'Poda, adubação e paisagismo',preco:250},
+  {id:'s2',icon:'⚡',nome:'Elétrica',desc:'Tomadas, interruptores, iluminação',preco:200},
+  {id:'s3',icon:'🔧',nome:'Hidráulica',desc:'Vazamentos e reparos em geral',preco:180},
+  {id:'s4',icon:'🎨',nome:'Pintura',desc:'Paredes internas e externas',preco:100},
+  {id:'s5',icon:'🛠️',nome:'Montagem',desc:'Móveis planejados e modulados',preco:150},
+  {id:'s6',icon:'🧹',nome:'Limpeza',desc:'Limpeza completa pós-obra',preco:210},
+];
+
+const DEFAULT_TERC=[
+  {id:'t1',titulo:'Reforma do banheiro principal',categoria:'Reforma Geral',desc:'Troca de revestimentos, box e louças. Aprox. 6m².',orcamento:4000,prazo:'2026-04-15',nome:'Carlos M.',contato:'(11) 98888-1234',local:'Ibatiba - ES',status:'aberto',candidaturas:[]},
+  {id:'t2',titulo:'Instalação de câmeras externas',categoria:'Segurança / Câmeras',desc:'4 câmeras com DVR, cabeamento e acesso remoto.',orcamento:1800,prazo:'2026-03-30',nome:'Fernanda T.',contato:'(11) 97777-4321',local:'Ibatiba - ES',status:'aberto',candidaturas:[]},
+];
+
+async function loadDB(){
+  try{
+    const r=await window.storage.get('facilitalar_db2');
+    if(r&&r.value) DB=JSON.parse(r.value);
+    if(!DB.servicos.length) DB.servicos=DEFAULT_SVCS;
+    if(!DB.tercPedidos) DB.tercPedidos=DEFAULT_TERC;
+    if(!DB.tercPedidos.length) DB.tercPedidos=DEFAULT_TERC;
+  }catch(e){DB.servicos=DEFAULT_SVCS;DB.tercPedidos=DEFAULT_TERC;}
+  renderAll();
+}
+
+async function saveDB(){
+  try{await window.storage.set('facilitalar_db2',JSON.stringify(DB));}catch(e){}
+}
+
+// NAV
+let selSvc=null;
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='agendar') initAgendar();
+  if(id==='pedidos') renderMeusPedidos();
+  if(id==='terc') renderTercParceiro();
+  if(id==='admin'){
+    if(!adminUnlocked){
+      document.getElementById('adminLogin').style.display='block';
+      document.getElementById('adminPanel').style.display='none';
+    } else renderAdmin('svc');
+  }
+  if(id==='home') renderHome();
+}
+
+// HOME
+function renderHome(){
+  renderHomeUserCard();
+  document.getElementById('homeStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${DB.pedidos.length}</div><div class="stat-label">Pedidos</div></div>
+    <div class="stat-card"><div class="stat-num">${DB.clientes.length}</div><div class="stat-label">Clientes</div></div>
+    <div class="stat-card"><div class="stat-num">${DB.pedidos.filter(p=>p.status==='confirmado').length}</div><div class="stat-label">Confirmados</div></div>
+    <div class="stat-card"><div class="stat-num">${DB.tercPedidos.filter(t=>t.status==='aberto').length}</div><div class="stat-label">Parcerias</div></div>`;
+  document.getElementById('homeServices').innerHTML=DB.servicos.map(s=>`
+    <div class="card" style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.8em">${s.icon}</span>
+      <div style="flex:1"><div class="card-title">${s.nome}</div><div class="card-sub">${s.desc}</div></div>
+      <div style="font-size:.9em;font-weight:700;color:#667eea">R$${s.preco}</div>
+    </div>`).join('');
+}
+
+// AGENDAR
+function initAgendar(){
+  selSvc=null; showStep(1);
+  // preenche dados do usuário logado automaticamente
+  if(usuarioLogado){
+    document.getElementById('fNome').value = usuarioLogado.nome||'';
+    document.getElementById('fTel').value  = usuarioLogado.tel||'';
+    document.getElementById('fEnd').value  = usuarioLogado.end||'';
+    checkStep2();
+  } else {
+    ['fNome','fTel','fEnd','fData','fHora','fObs'].forEach(id=>document.getElementById(id).value='');
+  }
+  document.getElementById('svcGrid').innerHTML=DB.servicos.map(s=>`
+    <div class="svc-card" onclick="selectSvc('${s.id}',this)" id="sc-${s.id}">
+      <div class="svc-icon">${s.icon}</div>
+      <div class="svc-name">${s.nome}</div>
+      <div class="svc-price">R$ ${s.preco}</div>
+    </div>`).join('');
+  document.getElementById('fData').min=new Date().toISOString().split('T')[0];
+}
+function selectSvc(id,el){
+  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selSvc=DB.servicos.find(s=>s.id===id);
+  document.getElementById('btnStep2').disabled=false;
+}
+function showStep(n){
+  [1,2,3].forEach(i=>document.getElementById('step'+i).style.display=i===n?'block':'none');
+  if(n===3) buildResumo();
+}
+function checkStep2(){
+  document.getElementById('btnStep3').disabled=!(
+    document.getElementById('fNome').value.trim()&&
+    document.getElementById('fTel').value.trim()&&
+    document.getElementById('fEnd').value.trim()&&
+    document.getElementById('fData').value&&
+    document.getElementById('fHora').value);
+}
+function buildResumo(){
+  const d=document.getElementById('fData').value;
+  const dt=d?new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}):'';
+  document.getElementById('resumo').innerHTML=`
+    <div class="summary-row"><span>Serviço</span><span>${selSvc.icon} ${selSvc.nome}</span></div>
+    <div class="summary-row"><span>Cliente</span><span>${document.getElementById('fNome').value}</span></div>
+    <div class="summary-row"><span>Data</span><span>${dt}</span></div>
+    <div class="summary-row"><span>Horário</span><span>${document.getElementById('fHora').value}</span></div>
+    <div class="summary-row"><span>Endereço</span><span>${document.getElementById('fEnd').value}</span></div>
+    <div class="summary-row"><span>Total</span><span>R$ ${selSvc.preco.toFixed(2).replace('.',',')}</span></div>`;
+}
+function confirmarPedido(){
+  const nome=document.getElementById('fNome').value.trim();
+  const tel=document.getElementById('fTel').value.trim();
+  let cli=DB.clientes.find(c=>c.tel===tel);
+  if(!cli){cli={id:'c'+Date.now(),nome,tel,end:document.getElementById('fEnd').value.trim()};DB.clientes.push(cli);}
+  DB.pedidos.unshift({id:'p'+Date.now(),clienteId:cli.id,clienteNome:nome,clienteTel:tel,
+    svcId:selSvc.id,svcNome:selSvc.nome,svcIcon:selSvc.icon,preco:selSvc.preco,
+    data:document.getElementById('fData').value,hora:document.getElementById('fHora').value,
+    end:document.getElementById('fEnd').value.trim(),obs:document.getElementById('fObs').value.trim(),
+    status:'aguardando',criadoEm:new Date().toISOString()});
+  saveDB(); showToast('✅ Agendamento confirmado!');
+  ['fNome','fTel','fEnd','fData','fHora','fObs'].forEach(id=>document.getElementById(id).value='');
+  showStep(1); selSvc=null;
+  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btnStep2').disabled=true;
+}
+
+// PEDIDOS
+function renderMeusPedidos(){
+  const el=document.getElementById('listaPedidos');
+  if(!DB.pedidos.length){el.innerHTML=`<div class="empty"><div class="ei">📭</div><p>Nenhum agendamento ainda</p></div>`;return;}
+  el.innerHTML=DB.pedidos.map(p=>{
+    const bd=statusBadge(p.status);
+    const d=p.data?new Date(p.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'}):'';
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div class="card-title">${p.svcIcon} ${p.svcNome}</div>
+        <span class="badge ${bd.cls}">${bd.label}</span>
+      </div>
+      <div class="card-sub">${p.clienteNome} · ${d} ${p.hora}</div>
+      <div class="card-sub">${p.end}</div>
+      <div style="margin-top:8px;font-weight:700;color:#667eea">R$ ${p.preco.toFixed(2).replace('.',',')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== TERCEIRIZADA =====
+function switchTercMode(mode,btn){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.terc-form').forEach(f=>f.classList.remove('active'));
+  if(mode==='cliente') document.getElementById('tFormCliente').classList.add('active');
+  else{document.getElementById('tFormParceiro').classList.add('active');renderTercParceiro();}
+}
+
+function publicarPedidoTerc(){
+  const titulo=document.getElementById('tTitulo').value.trim();
+  const cat=document.getElementById('tCategoria').value;
+  const desc=document.getElementById('tDesc').value.trim();
+  const nome=document.getElementById('tNome').value.trim();
+  const contato=document.getElementById('tContato').value.trim();
+  if(!titulo||!cat||!desc||!nome||!contato){showToast('⚠️ Preencha os campos obrigatórios');return;}
+  DB.tercPedidos.unshift({
+    id:'t'+Date.now(),titulo,categoria:cat,desc,
+    orcamento:parseFloat(document.getElementById('tOrcamento').value)||0,
+    prazo:document.getElementById('tPrazo').value,
+    nome,contato,local:document.getElementById('tLocal').value.trim(),
+    status:'aberto',candidaturas:[],criadoEm:new Date().toISOString()
+  });
+  saveDB();
+  ['tTitulo','tCategoria','tDesc','tOrcamento','tPrazo','tNome','tContato','tLocal'].forEach(id=>document.getElementById(id).value='');
+  showToast('📢 Pedido publicado com sucesso!');
+}
+
+function renderTercParceiro(){
+  const el=document.getElementById('listaTercPedidos');
+  const abertos=DB.tercPedidos.filter(p=>p.status==='aberto');
+  if(!abertos.length){el.innerHTML=`<div class="empty"><div class="ei">📭</div><p>Nenhum pedido aberto</p></div>`;return;}
+  el.innerHTML=abertos.map(p=>`
+    <div class="bid-card">
+      <div class="bid-top">
+        <div class="bid-title">${p.titulo}</div>
+        <span class="badge badge-green">Aberto</span>
+      </div>
+      <div class="bid-meta">
+        <span>📂 ${p.categoria}</span>
+        ${p.local?`<span>📍 ${p.local}</span>`:''}
+        ${p.prazo?`<span>📅 ${fmtDate(p.prazo)}</span>`:''}
+      </div>
+      <div class="bid-desc">${p.desc}</div>
+      <div class="tag-row"><span class="tag">${p.categoria}</span>${p.local?`<span class="tag">${p.local}</span>`:''}</div>
+      <div class="bid-footer">
+        <div class="bid-price">${p.orcamento?'R$ '+p.orcamento.toLocaleString('pt-BR'):'A combinar'}</div>
+        <button class="btn-candidatar" onclick="abrirCand('${p.id}')">Candidatar-se</button>
+      </div>
+    </div>`).join('');
+}
+
+function abrirCand(id){
+  candTargetId=id;
+  const p=DB.tercPedidos.find(t=>t.id===id);
+  document.getElementById('candInfo').textContent=`"${p.titulo}" — ${p.local||''}`;
+  ['cNome','cContato','cProposta','cValor'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('modalCand').classList.add('open');
+}
+function enviarCandidatura(){
+  const nome=document.getElementById('cNome').value.trim();
+  const contato=document.getElementById('cContato').value.trim();
+  const proposta=document.getElementById('cProposta').value.trim();
+  if(!nome||!contato||!proposta){showToast('⚠️ Preencha Nome, Contato e Proposta');return;}
+  const p=DB.tercPedidos.find(t=>t.id===candTargetId);
+  if(!p.candidaturas) p.candidaturas=[];
+  p.candidaturas.push({nome,contato,proposta,valor:parseFloat(document.getElementById('cValor').value)||0,data:new Date().toISOString()});
+  saveDB(); closeModal('modalCand'); showToast('🎉 Candidatura enviada!');
+}
+
+// ADMIN
+function renderAll(){renderHome();}
+function adminTab(id,btn){
+  ['svc','cli','ped','terc'].forEach(t=>document.getElementById('admin-'+t).style.display=t===id?'block':'none');
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdmin(id);
+}
+function renderAdmin(tab){
+  if(tab==='svc') renderAdminSvc();
+  if(tab==='cli') renderAdminCli();
+  if(tab==='ped') renderAdminPed();
+  if(tab==='terc') renderAdminTerc();
+}
+
+function renderAdminSvc(){
+  document.getElementById('admin-svc').innerHTML=`<button class="btn-primary" onclick="openModalSvc(null)" style="margin-bottom:14px">+ Novo Serviço</button><div class="card">`+
+  (DB.servicos.length?DB.servicos.map(s=>`
+    <div class="admin-list-item">
+      <div class="ali-info"><div class="ali-name">${s.icon} ${s.nome}</div><div class="ali-sub">R$ ${s.preco} · ${s.desc}</div></div>
+      <div class="ali-actions">
+        <button class="btn-edit" onclick="openModalSvc('${s.id}')">✏️</button>
+        <button class="btn-danger" onclick="deleteSvc('${s.id}')">🗑️</button>
+      </div>
+    </div>`).join(''):'<div class="empty"><div class="ei">🛠️</div><p>Sem serviços</p></div>')+`</div>`;
+}
+
+function renderAdminCli(){
+  document.getElementById('admin-cli').innerHTML=`<div class="section-title">Clientes Cadastrados</div><div class="card">`+
+  (DB.clientes.length?DB.clientes.map(c=>{
+    const n=DB.pedidos.filter(p=>p.clienteId===c.id).length;
+    return `<div class="admin-list-item">
+      <div class="ali-info"><div class="ali-name">${c.nome}</div><div class="ali-sub">${c.tel} · ${n} pedido(s)</div></div>
+      <button class="btn-danger" onclick="deleteCli('${c.id}')">🗑️</button>
+    </div>`;}).join(''):'<div class="empty"><div class="ei">👥</div><p>Nenhum cliente</p></div>')+`</div>`;
+}
+
+function renderAdminPed(){
+  document.getElementById('admin-ped').innerHTML=`<div class="section-title">Todos os Pedidos</div>`+
+  (DB.pedidos.length?DB.pedidos.map(p=>{
+    const bd=statusBadge(p.status);
+    const d=p.data?new Date(p.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'}):'';
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-weight:700">${p.svcIcon} ${p.svcNome}</div>
+        <span class="badge ${bd.cls}">${bd.label}</span>
+      </div>
+      <div class="card-sub">${p.clienteNome} · ${d} ${p.hora}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span style="font-weight:700;color:#667eea">R$ ${p.preco.toFixed(2).replace('.',',')}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-edit" onclick="openModalStatus('${p.id}')">Status</button>
+          <button class="btn-danger" onclick="deletePed('${p.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;}).join(''):'<div class="empty"><div class="ei">📋</div><p>Nenhum pedido</p></div>');
+}
+
+function renderAdminTerc(){
+  const el=document.getElementById('admin-terc');
+  el.innerHTML=`<div class="section-title">Pedidos Terceirizados</div>`+
+  (DB.tercPedidos.length?DB.tercPedidos.map(p=>{
+    const bd=statusBadgeTerc(p.status);
+    const cands=p.candidaturas?p.candidaturas.length:0;
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px">
+        <div style="font-weight:700;flex:1">${p.titulo}</div>
+        <span class="badge ${bd.cls}">${bd.label}</span>
+      </div>
+      <div class="card-sub">${p.categoria} · ${p.local||''}</div>
+      <div class="card-sub" style="margin-top:3px">${p.nome} · ${p.contato}</div>
+      ${cands?`<div style="margin-top:6px"><span class="badge badge-blue">👤 ${cands} candidatura(s)</span></div>`:''}
+      ${p.candidaturas&&p.candidaturas.length?`<div style="margin-top:8px;padding:8px;background:#f8f8f8;border-radius:8px;font-size:.78em;color:#555">
+        ${p.candidaturas.map(c=>`<b>${c.nome}</b> · ${c.contato}${c.valor?` · R$ ${c.valor}`:''}<br>${c.proposta}`).join('<hr style="border:none;border-top:1px solid #e5e5ea;margin:6px 0">')}
+      </div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span style="font-weight:700;color:#f7971e">${p.orcamento?'R$ '+p.orcamento.toLocaleString('pt-BR'):'A combinar'}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-edit" onclick="openModalTercStatus('${p.id}')">Status</button>
+          <button class="btn-danger" onclick="deleteTercPed('${p.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;}).join(''):'<div class="empty"><div class="ei">🤝</div><p>Nenhum pedido terceirizado</p></div>');
+}
+
+// MODALS
+function openModalSvc(id){
+  editSvcId=id;
+  if(id){const s=DB.servicos.find(s=>s.id===id);document.getElementById('modalSvcTitle').textContent='Editar Serviço';document.getElementById('msIcon').value=s.icon;document.getElementById('msNome').value=s.nome;document.getElementById('msDesc').value=s.desc;document.getElementById('msPreco').value=s.preco;}
+  else{document.getElementById('modalSvcTitle').textContent='Novo Serviço';['msIcon','msNome','msDesc','msPreco'].forEach(i=>document.getElementById(i).value='');}
+  document.getElementById('modalSvc').classList.add('open');
+}
+function salvarSvc(){
+  const icon=document.getElementById('msIcon').value.trim()||'🔨';
+  const nome=document.getElementById('msNome').value.trim();
+  if(!nome){showToast('⚠️ Informe o nome');return;}
+  const data={icon,nome,desc:document.getElementById('msDesc').value.trim(),preco:parseFloat(document.getElementById('msPreco').value)||0};
+  if(editSvcId) Object.assign(DB.servicos.find(s=>s.id===editSvcId),data);
+  else DB.servicos.push({id:'s'+Date.now(),...data});
+  saveDB(); closeModal('modalSvc'); renderAdminSvc(); showToast('✅ Serviço salvo!');
+}
+function deleteSvc(id){if(!confirm('Excluir serviço?'))return;DB.servicos=DB.servicos.filter(s=>s.id!==id);saveDB();renderAdminSvc();showToast('🗑️ Serviço removido');}
+
+function openModalStatus(id){editPedId=id;document.getElementById('mpStatus').value=DB.pedidos.find(p=>p.id===id).status;document.getElementById('modalPedStatus').classList.add('open');}
+function salvarStatus(){DB.pedidos.find(p=>p.id===editPedId).status=document.getElementById('mpStatus').value;saveDB();closeModal('modalPedStatus');renderAdminPed();showToast('✅ Status atualizado!');}
+function deletePed(id){if(!confirm('Excluir pedido?'))return;DB.pedidos=DB.pedidos.filter(p=>p.id!==id);saveDB();renderAdminPed();showToast('🗑️ Pedido removido');}
+
+function openModalTercStatus(id){editTercId=id;document.getElementById('mtStatus').value=DB.tercPedidos.find(t=>t.id===id).status;document.getElementById('modalTercStatus').classList.add('open');}
+function salvarStatusTerc(){DB.tercPedidos.find(t=>t.id===editTercId).status=document.getElementById('mtStatus').value;saveDB();closeModal('modalTercStatus');renderAdminTerc();showToast('✅ Status atualizado!');}
+function deleteTercPed(id){if(!confirm('Excluir pedido terceirizado?'))return;DB.tercPedidos=DB.tercPedidos.filter(t=>t.id!==id);saveDB();renderAdminTerc();showToast('🗑️ Pedido removido');}
+function deleteCli(id){if(!confirm('Excluir cliente?'))return;DB.clientes=DB.clientes.filter(c=>c.id!==id);saveDB();renderAdminCli();showToast('🗑️ Cliente removido');}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+function statusBadge(s){return({aguardando:{cls:'badge-yellow',label:'⏳ Aguardando'},confirmado:{cls:'badge-blue',label:'✅ Confirmado'},concluido:{cls:'badge-green',label:'🎉 Concluído'},cancelado:{cls:'badge-red',label:'❌ Cancelado'}}[s])||{cls:'badge-yellow',label:s};}
+function statusBadgeTerc(s){return({aberto:{cls:'badge-green',label:'🟢 Aberto'},em_andamento:{cls:'badge-blue',label:'🔄 Em andamento'},concluido:{cls:'badge-green',label:'🎉 Concluído'},cancelado:{cls:'badge-red',label:'❌ Cancelado'}}[s])||{cls:'badge-yellow',label:s};}
+function fmtDate(d){try{return new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'});}catch(e){return d;}}
+
+let toastT;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2500);}
+
+loadDB();
+</script>
+</body>
+</html>
